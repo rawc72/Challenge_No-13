@@ -1,22 +1,83 @@
-const router = require('express').Router();
-const { Product, Category, Tag, ProductTag } = require('../../models');
+const router = require("express").Router();
+const { Product, Category, Tag, ProductTag } = require("../../models");
 
 // The `/api/products` endpoint
 
 // get all products
-router.get('/', (req, res) => {
+router.get("/", (req, res) => {
   // find all products
   // be sure to include its associated Category and Tag data
+  Product.findAll({
+    attributes: ["id", "product_name", "price", "stock", "category_id"],
+    include: [
+      {
+        model: Category,
+        as: "category",
+        attributes: ["id", "category_name"],
+      },
+      {
+        model: Tag,
+        as: "tags",
+        through: {
+          model: ProductTag,
+          attributes: ["id", "product_id", "tag_id"],
+        },
+        attributes: ["id", "tag_name"],
+        includeIgnoreAttributes: false,
+      },
+    ],
+  })
+    .then((tag) => {
+      res.send(tag);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving the Product.",
+      });
+    });
 });
 
 // get one product
-router.get('/:id', (req, res) => {
+router.get("/:id", (req, res) => {
   // find a single product by its `id`
   // be sure to include its associated Category and Tag data
+  const id = req.params.id;
+
+  Product.findByPk(id, {
+    attributes: ["id", "product_name", "price", "stock", "category_id"],
+    // includeIgnoreAttributes: false,
+    include: [
+      {
+        model: Category,
+        as: "category",
+        attributes: ["id", "category_name"],
+      },
+      {
+        model: Tag,
+        as: "tags",
+        through: {
+          model: ProductTag,
+          attributes: ["id", "product_id", "tag_id"],
+        },
+        attributes: ["id", "tag_name"],
+        includeIgnoreAttributes: false,
+      },
+    ],
+  })
+    .then((tag) => {
+      res.send(tag);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message:
+          err.message || "Some error occurred while retrieving the Product.",
+      });
+    });
 });
 
 // create new product
-router.post('/', (req, res) => {
+router.post("/", (req, res) => {
   /* req.body should look like this...
     {
       product_name: "Basketball",
@@ -48,7 +109,7 @@ router.post('/', (req, res) => {
 });
 
 // update product
-router.put('/:id', (req, res) => {
+router.put("/:id", (req, res) => {
   // update product data
   Product.update(req.body, {
     where: {
@@ -89,8 +150,29 @@ router.put('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete("/:id", (req, res) => {
   // delete one product by its `id` value
+  const id = req.params.id;
+
+  Product.destroy({
+    where: { id: id },
+  })
+    .then((num) => {
+      if (num == 1) {
+        res.send({
+          message: "Product was deleted successfully!",
+        });
+      } else {
+        res.send({
+          message: `Cannot delete Product with id=${id}. Maybe Product was not found!`,
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Could not delete Product with id=" + id,
+      });
+    });
 });
 
 module.exports = router;
