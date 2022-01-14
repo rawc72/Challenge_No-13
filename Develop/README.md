@@ -26,7 +26,6 @@ The database contains the following four models, including the requirements list
     * Doesn't allow null values
 
 * `Product`
-
   * `id`
     * Integer
     * Doesn't allow null values
@@ -81,7 +80,8 @@ Association methods are executed on the Sequelize models to create the following
 
 ## Walkthrough video link:
 The walkthrough video shows the POST, PUT, and DELETE routes for products and tags being tested in Insomnia Core.
-
+https://github.com/rawc72/Challenge_No-13/issues/1#issue-1102779422
 
 ## Github repository link:
+https://github.com/rawc72/Challenge_No-13.git
 
